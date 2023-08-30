@@ -1,0 +1,130 @@
+﻿@model webscapword.Models.retValue
+
+
+<style>
+    .center-div {
+        width: 300px;
+        height: 300px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -150px;
+        margin-top: -150px;
+    }
+
+    .spinner {
+        position: fixed;
+        z-index: 999;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background-color: Black;
+        filter: alpha(opacity=60);
+        opacity: 0.6;
+        -moz-opacity: 0.8;
+    }
+
+    .loader {
+        margin: auto;
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #15a0ec;
+        border-bottom: 16px solid #15a0ec;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+    }
+
+    .inner-div {
+        background-color: white;
+        border-radius: 15px;
+        margin: auto;
+        padding: 2%;
+        width: 150px;
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#btnSubmit').click(function () {
+
+            $('.spinner').css('display', 'block');
+
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+
+                var fileUpload = $("#fileupload").get(0);
+                var files = fileUpload.files;
+
+                // Create FormData object
+                var fileData = new FormData();
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append(files[i].name, files[i]);
+                }
+
+                // Adding one more key to FormData object
+
+                $.ajax({
+                    url: '/Home/IndexPost',
+                    type: "POST",
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (data) {
+                        $('#urlid').html(data.url);
+                        $.each(data.showValues, function (index) {
+                            $('#ulid').append('<li>' + data.showValues[index].missingText + '</li>');
+                        });
+
+                        $('.spinner').css('display', 'none');
+                    },
+                    error: function (err) {
+                       
+                        $('.spinner').css('display', 'none');
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        });
+    });
+</script>
+
+
+<div class="form-group">
+    <br />
+    <br />
+    <br />
+    <h2>UploadFile</h2>
+
+    <input id="fileupload" type="file" name="fileupload" />
+
+
+
+
+    <input type="button" class="btn btn-danger" value="Search" id="btnSubmit" />
+    <div class="spinner" style="display:none">
+        <div class="center-div">
+            <div class="inner-div">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+    <span id="urlid"></span>
+    <br />
+    <br />
+    <ul id="ulid"></ul>
+</div>
+
